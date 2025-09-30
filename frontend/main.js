@@ -58,10 +58,11 @@ function createOverlayWindow() {
   // Keep window always on top
   overlayWindow.setAlwaysOnTop(true, 'floating', 2);
 
-  // Position bottom-left with a small margin
+  // Position bottom-left with a margin (close to bottom)
   const margin = 16;
+  const bottomOffset = -80; // Small offset from the bottom
   const x = workArea.x + margin;
-  const y = workArea.y + workArea.height - initialHeight - margin;
+  const y = workArea.y + workArea.height - initialHeight - bottomOffset;
   overlayWindow.setPosition(x, y);
   
   // Remove menu bar

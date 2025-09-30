@@ -26,7 +26,7 @@ def make_clipboard_tool(websocket_send_callback: Optional[Callable] = None) -> C
         instructions: Optional[str] = None,
         tool_context: Optional[ToolContext] = None,
     ) -> Dict[str, Any]:
-        """Queue a clipboard prompt for the user to paste inside Cursor.
+        """Whenever you want to help the user create a prompt to ask Cursor, use this tool to put the prompt in their clipboard history so they can paste it in.
         
         Args:
             text: The text to copy to clipboard

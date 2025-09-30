@@ -21,7 +21,9 @@ from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from pikachu_agent.agent import root_agent
+# Import agent factory and websocket helper utilities
+from agent_factory import create_full_agent
+from websocket_helper import create_websocket_callback
 
 # Load environment variables
 load_dotenv()
@@ -32,13 +34,21 @@ APP_NAME = "adk-streaming-ws"
 # Initialize session service
 session_service = InMemorySessionService()
 
-async def start_agent_session(user_id, is_audio=False):
+# Create agent instance once (singleton pattern for better performance)
+# NOTE: Clipboard and cursor tools require a websocket callback, so we
+# create the agent per connection with the callback rather than globally.
+
+async def start_agent_session(user_id, is_audio=False, websocket: WebSocket | None = None):
     """Starts an agent session"""
     
-    # Create a Runner
+    # Create agent instance for this session (include websocket callback if available)
+    websocket_callback = create_websocket_callback(websocket) if websocket else None
+    agent = create_full_agent(websocket_callback)
+
+    # Create a Runner with the configured agent
     runner = Runner(
         app_name=APP_NAME,
-        agent=root_agent,
+        agent=agent,
         session_service=session_service,
     )
 
@@ -162,7 +172,11 @@ async def websocket_endpoint(websocket: WebSocket, user_id: int, is_audio: str =
     try:
         # Start agent session
         user_id_str = str(user_id)
-        live_events, live_request_queue = await start_agent_session(user_id_str, is_audio == "true")
+        live_events, live_request_queue = await start_agent_session(
+            user_id_str,
+            is_audio == "true",
+            websocket=websocket,
+        )
 
         # Start tasks
         agent_to_client_task = asyncio.create_task(

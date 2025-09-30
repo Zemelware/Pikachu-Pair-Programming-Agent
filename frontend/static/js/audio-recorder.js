@@ -19,7 +19,7 @@ export async function startAudioRecorderWorklet(onAudioData) {
   const source = audioContext.createMediaStreamSource(stream);
 
   // Load the PCM recorder processor worklet
-  await audioContext.audioWorklet.addModule('/static/js/pcm-recorder-processor.js');
+  await audioContext.audioWorklet.addModule(new URL('./pcm-recorder-processor.js', import.meta.url));
 
   // Create the worklet node
   const audioRecorderNode = new AudioWorkletNode(audioContext, 'pcm-recorder-processor');
@@ -44,5 +44,5 @@ export async function startAudioRecorderWorklet(onAudioData) {
 
   console.log('Audio recorder worklet started');
 
-  return audioRecorderNode;
+  return [audioRecorderNode, audioContext, stream];
 }

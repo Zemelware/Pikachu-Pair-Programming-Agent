@@ -7,7 +7,7 @@ export async function startAudioPlayerWorklet() {
   const audioContext = new AudioContext({ sampleRate: 24000 });
 
   // Load the PCM player processor worklet
-  await audioContext.audioWorklet.addModule('/static/js/pcm-player-processor.js');
+  await audioContext.audioWorklet.addModule(new URL('./pcm-player-processor.js', import.meta.url));
 
   // Create the worklet node
   const audioPlayerNode = new AudioWorkletNode(audioContext, 'pcm-player-processor');
@@ -17,5 +17,5 @@ export async function startAudioPlayerWorklet() {
 
   console.log('Audio player worklet started');
 
-  return audioPlayerNode;
+  return [audioPlayerNode, audioContext];
 }

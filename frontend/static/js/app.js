@@ -7,7 +7,10 @@ const ws_url = "ws://localhost:8000/ws/" + sessionId;
 
 // Audio nodes
 let audioPlayerNode = null;
+let audioPlayerContext = null;
 let audioRecorderNode = null;
+let audioRecorderContext = null;
+let micStream = null;
 
 // Message tracking
 let currentMessageId = null;
@@ -35,7 +38,7 @@ function connectWebSocket() {
   // Handle connection open
   websocket.onopen = function () {
     console.log("WebSocket connection opened.");
-    document.getElementById("messages").textContent = "Connection opened";
+  document.getElementById("messages").textContent = "Connection opened";
 
     // Enable the Send button
     document.getElementById("sendButton").disabled = false;
@@ -150,10 +153,10 @@ document.getElementById("startAudioButton").onclick = async function () {
   }
 
   // Start audio player
-  audioPlayerNode = await startAudioPlayerWorklet();
+  [audioPlayerNode, audioPlayerContext] = await startAudioPlayerWorklet();
 
   // Start audio recorder
-  audioRecorderNode = await startAudioRecorderWorklet(function (audioData) {
+  [audioRecorderNode, audioRecorderContext, micStream] = await startAudioRecorderWorklet(function (audioData) {
     console.log("[CLIENT TO AGENT]: audio/pcm:", audioData.byteLength, "bytes");
     
     // Convert audioData to base64

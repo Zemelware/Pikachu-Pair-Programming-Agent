@@ -13,10 +13,24 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
     this.readIndex = 0;
     this.samplesAvailable = 0;
 
-    // Listen for incoming audio data
+    // Listen for incoming audio data and commands
     this.port.onmessage = (event) => {
-      this.addAudioData(event.data);
+      if (event.data === 'clear') {
+        this.clearBuffer();
+      } else {
+        this.addAudioData(event.data);
+      }
     };
+  }
+
+  /**
+   * Clears the audio buffer (stops playback immediately)
+   */
+  clearBuffer() {
+    this.writeIndex = 0;
+    this.readIndex = 0;
+    this.samplesAvailable = 0;
+    this.ringBuffer.fill(0);
   }
 
   /**

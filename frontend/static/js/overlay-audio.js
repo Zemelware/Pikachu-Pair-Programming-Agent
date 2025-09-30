@@ -56,7 +56,10 @@ function connectWebSocket() {
     if (msg.turn_complete) return;
 
     if (msg.mime_type === 'audio/pcm' && audioPlayerNode) {
-      audioPlayerNode.port.postMessage(base64ToArray(msg.data));
+      // Don't play audio if muted
+      if (!isMuted) {
+        audioPlayerNode.port.postMessage(base64ToArray(msg.data));
+      }
     } else if (msg.mime_type === 'text/plain') {
       window.pikachuAPI.showMessage(msg.data);
     }
@@ -134,6 +137,10 @@ if (thoughtBubble) {
     console.log('[pikachu] mute toggle, muted=%s', isMuted);
     
     if (isMuted) {
+      // Clear the audio buffer to stop agent talking immediately
+      if (audioPlayerNode) {
+        audioPlayerNode.port.postMessage('clear');
+      }
       window.pikachuAPI.setListening('muted (double-click to unmute)');
     } else {
       window.pikachuAPI.setListening('listening...');

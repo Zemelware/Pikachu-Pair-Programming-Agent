@@ -43,9 +43,12 @@ def create_full_agent(websocket_callback=None):
         ),
         tools=[
             google_search,
+            file_open_tool,
+            clipboard_tool,
+            cursor_tool,
         ],
     )
-    
+
     return agent
 
 

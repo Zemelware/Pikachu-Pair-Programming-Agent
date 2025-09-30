@@ -13,6 +13,11 @@ from tools import (
     make_file_open_tool,
 )
 
+# Specific files the agent is allowed to access from external projects
+ALLOWED_EXTERNAL_FILES = [
+    "/Users/miracle/Pikachu-Pair-Programming-Demo/pokemon-app/app/page.tsx",
+]
+
 def create_full_agent(websocket_callback=None):
     """Create an agent with all available tools.
     
@@ -23,7 +28,7 @@ def create_full_agent(websocket_callback=None):
         Configured Agent instance
     """
     # Create tool instances
-    file_open_tool = make_file_open_tool()
+    file_open_tool = make_file_open_tool(allowed_external_files=ALLOWED_EXTERNAL_FILES)
     context_call_tool = make_context_call_tool()
     clipboard_tool = make_clipboard_tool(websocket_callback)
     cursor_tool = make_cursor_move_tool(websocket_callback)
@@ -43,7 +48,9 @@ def create_full_agent(websocket_callback=None):
             
             "Your available tools:\n"
             "- read_context_file: Read the Context.MD file to understand current project requirements, goals, and conventions\n"
-            "- open_project_file: Read and analyze any file in the current project\n"
+            "- open_project_file: Read and analyze any file in the current project or specific external files:\n"
+            f"  * External files: {', '.join(ALLOWED_EXTERNAL_FILES)}\n"
+            "  Use the full absolute path or just the filename to access external files.\n"
             "- google_search: Search the web for current information, documentation, and best practices\n"
             "- push_clipboard_prompt: Send code snippets or text to the user's clipboard for easy pasting\n"
             "- move_visual_cursor: Point to specific screen locations to guide the user's attention\n\n"
@@ -57,7 +64,8 @@ def create_full_agent(websocket_callback=None):
             "• Suggest improvements to code architecture and design\n"
             "• Be direct but constructive in your feedback\n"
             "• Help debug issues by analyzing code systematically\n"
-            "• Stay current with latest technologies and practices through web search\n\n"
+            "• Stay current with latest technologies and practices through web search\n"
+            "• When users ask about their pokemon-app project, read the external files to understand the codebase\n\n"
             
             "Remember: You're a thinking partner, not just a code generator. Challenge ideas, suggest improvements, and help build better software through critical analysis and collaborative problem-solving."
         ),

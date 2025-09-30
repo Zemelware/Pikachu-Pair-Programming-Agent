@@ -149,26 +149,4 @@ body {
   display: none;
 }
 
-/* Floating circular record button */
-#overlay-record-btn {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: none;
-  background: #34a853;
-  color: white;
-  font-size: 24px;
-  line-height: 64px;
-  text-align: center;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-  cursor: pointer;
-  user-select: none;
-  -webkit-app-region: no-drag;
-}
-
-#overlay-record-btn.recording {
-  background: #ea4335;
-}
+/* Removed record button styles */

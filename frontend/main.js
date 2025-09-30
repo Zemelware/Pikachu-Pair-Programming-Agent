@@ -34,9 +34,13 @@ function createBorderWindow() {
 }
 
 function createOverlayWindow() {
+  const { workArea } = screen.getPrimaryDisplay();
+  const initialWidth = 300;
+  const initialHeight = 400;
+
   overlayWindow = new BrowserWindow({
-    width: 300,
-    height: 400,
+    width: initialWidth,
+    height: initialHeight,
     transparent: true,
     frame: false,
     alwaysOnTop: true,
@@ -53,6 +57,12 @@ function createOverlayWindow() {
   
   // Keep window always on top
   overlayWindow.setAlwaysOnTop(true, 'floating', 2);
+
+  // Position bottom-left with a small margin
+  const margin = 16;
+  const x = workArea.x + margin;
+  const y = workArea.y + workArea.height - initialHeight - margin;
+  overlayWindow.setPosition(x, y);
   
   // Remove menu bar
   overlayWindow.setMenuBarVisibility(false);

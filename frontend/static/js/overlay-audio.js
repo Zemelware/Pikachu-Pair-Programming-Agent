@@ -1,10 +1,11 @@
 import { startAudioPlayerWorklet } from './audio-player.js';
 import { startAudioRecorderWorklet } from './audio-recorder.js';
 
-// Overlay record button logic to control audio + websocket from Electron UI
-
-const recordBtn = document.getElementById('overlay-record-btn');
-const messagesDiv = document.getElementById('thought-text');
+// Command-click (Meta) Pikachu to start/stop audio; drag to move
+const pikachuImg = document.getElementById('pikachu-img');
+let mouseDownPos = null;
+let mouseMoved = false;
+let metaDownAtMouseDown = false;
 
 let websocket = null;
 let audioPlayerNode = null;
@@ -94,18 +95,13 @@ function stopAudio() {
 
 async function startRecording() {
   try {
-    recordBtn.disabled = true;
     window.pikachuAPI.setThinking('starting audio...');
     await startAudio();
     connectWebSocket();
     isRecording = true;
-    recordBtn.classList.add('recording');
-    recordBtn.textContent = '■';
     window.pikachuAPI.setListening('listening...');
   } catch (e) {
     window.pikachuAPI.showMessage('mic permission denied');
-  } finally {
-    recordBtn.disabled = false;
   }
 }
 
@@ -113,13 +109,55 @@ function stopRecording() {
   isRecording = false;
   if (websocket) websocket.close();
   stopAudio();
-  recordBtn.classList.remove('recording');
-  recordBtn.textContent = '●';
   window.pikachuAPI.setListening('stopped');
 }
 
-if (recordBtn) {
-  recordBtn.addEventListener('click', () => {
+if (pikachuImg) {
+  // Manage drag vs click behavior
+  pikachuImg.addEventListener('mousedown', (e) => {
+    mouseMoved = false;
+    mouseDownPos = { x: e.clientX, y: e.clientY };
+    metaDownAtMouseDown = !!e.metaKey;
+    // While Meta (Command) is pressed, allow click by disabling drag temporarily
+    if (metaDownAtMouseDown) {
+      pikachuImg.style['-webkit-app-region'] = 'no-drag';
+    } else {
+      pikachuImg.style['-webkit-app-region'] = 'drag';
+    }
+    // Debug
+    console.log('[pikachu] mousedown meta=%s at %s,%s', metaDownAtMouseDown, e.clientX, e.clientY);
+  });
+
+  pikachuImg.addEventListener('mousemove', (e) => {
+    if (!mouseDownPos) return;
+    if (Math.abs(e.clientX - mouseDownPos.x) > 4 || Math.abs(e.clientY - mouseDownPos.y) > 4) {
+      mouseMoved = true;
+    }
+  });
+
+  const resetDragRegion = () => {
+    // Default to drag so the avatar can be moved normally
+    pikachuImg.style['-webkit-app-region'] = 'drag';
+    mouseDownPos = null;
+    mouseMoved = false;
+    metaDownAtMouseDown = false;
+  };
+
+  pikachuImg.addEventListener('mouseup', resetDragRegion);
+  pikachuImg.addEventListener('mouseleave', resetDragRegion);
+
+  pikachuImg.addEventListener('contextmenu', (e) => {
+    // Prevent macOS Command-click context menu when used for talk
+    if (e.metaKey) e.preventDefault();
+  });
+
+  pikachuImg.addEventListener('click', (e) => {
+    // Only toggle when Meta (Command) was held on mousedown and it was a click (no drag)
+    if (!metaDownAtMouseDown || mouseMoved) {
+      return;
+    }
+    e.preventDefault();
+    console.log('[pikachu] command-click toggle, recording=%s', isRecording);
     if (!isRecording) {
       startRecording();
     } else {
@@ -128,6 +166,6 @@ if (recordBtn) {
   });
 }
 
-console.log('Overlay audio ready');
+console.log('Overlay audio ready (Command-click Pikachu to talk)');
 
 

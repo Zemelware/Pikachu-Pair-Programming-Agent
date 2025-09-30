@@ -1,0 +1,150 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: transparent;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-app-region: no-drag;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#character-container {
+  background: transparent;
+  padding: 0;
+  cursor: move;
+  -webkit-app-region: drag;
+  transition: transform 0.2s ease;
+  user-select: none;
+  position: relative;
+}
+
+#character-container:hover {
+  transform: scale(1.05);
+}
+
+#character-container:active {
+  transform: scale(0.98);
+}
+
+/* Thought Bubble */
+.thought-bubble {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 20px;
+  padding: 12px 18px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  max-width: 250px;
+  min-width: 150px;
+  opacity: 1;
+  transition: all 0.3s ease;
+  -webkit-app-region: no-drag;
+  z-index: 1000;
+}
+
+.thought-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 15px solid white;
+}
+
+.thought-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+.thought-bubble.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+  pointer-events: none;
+}
+
+/* Working state - purple bubble */
+.thought-bubble.working {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.thought-bubble.working::before {
+  border-top-color: #764ba2;
+}
+
+.thought-bubble.working::after {
+  background: #764ba2;
+}
+
+.thought-bubble.working .bubble-content p {
+  color: white;
+}
+
+.bubble-content p {
+  margin: 0;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Pikachu Character */
+#character {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pikachu-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(255, 215, 0, 0.3));
+  transition: transform 0.3s ease;
+}
+
+/* Bouncing animation when thinking */
+.pikachu-img.bouncing {
+  animation: bounce 0.6s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.hidden {
+  display: none;
+}

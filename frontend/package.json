@@ -1,0 +1,20 @@
+{
+  "name": "pikachu-overlay",
+  "version": "1.0.0",
+  "description": "An Electron overlay app with a draggable character and screen border highlight",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "keywords": [
+    "electron",
+    "overlay",
+    "desktop-pet"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0"
+  }
+}

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADK Streaming WebSocket App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        #messageForm {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        #message {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        #message:focus {
+            outline: none;
+            border-color: #4285f4;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #sendButton {
+            background-color: #4285f4;
+            color: white;
+        }
+        
+        #sendButton:hover:not(:disabled) {
+            background-color: #3367d6;
+        }
+        
+        #sendButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        #startAudioButton {
+            background-color: #34a853;
+            color: white;
+            white-space: nowrap;
+        }
+        
+        #startAudioButton:hover:not(:disabled) {
+            background-color: #2d8f47;
+        }
+        
+        #startAudioButton:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        #messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #fafafa;
+            font-family: monospace;
+            line-height: 1.5;
+        }
+        
+        #messages p {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        
+        #messages p:nth-child(odd) {
+            background-color: #e8f0fe;
+        }
+        
+        #messages p:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .audio-indicator {
+            display: none;
+            background-color: #ea4335;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 10px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .audio-indicator.active {
+            display: block;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .instructions {
+            background-color: #e8f0fe;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4285f4;
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: #1a73e8;
+        }
+        
+        .instructions ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 ADK Streaming WebSocket App</h1>
+        
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ul>
+                <li><strong>Text Mode:</strong> Type your questions and press Send</li>
+                <li><strong>Audio Mode:</strong> Click "Start Audio" to enable voice interaction</li>
+                <li><strong>Try asking:</strong> "What time is it now?", "What's the weather in Tokyo?"</li>
+            </ul>
+        </div>
+        
+        <div class="audio-indicator" id="audioIndicator">
+            🎤 Audio Mode Active - Speak now!
+        </div>
+        
+        <div class="controls">
+            <form id="messageForm">
+                <input type="text" id="message" placeholder="Type your message here..." autocomplete="off">
+                <button type="submit" id="sendButton" disabled>Send</button>
+            </form>
+            <button id="startAudioButton">Start Audio</button>
+        </div>
+        
+        <div class="status" id="status">Connecting...</div>
+        
+        <div id="messages"></div>
+    </div>
+
+    <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

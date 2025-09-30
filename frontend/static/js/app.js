@@ -3,9 +3,7 @@ import { startAudioRecorderWorklet } from './audio-recorder.js';
 
 // Session management
 const sessionId = Math.random().toString().substring(10);
-const sse_url = "http://" + window.location.host + "/events/" + sessionId;
-const send_url = "http://" + window.location.host + "/send/" + sessionId;
-let is_audio = false;
+const ws_url = "ws://localhost:8000/ws/" + sessionId;
 
 // Audio nodes
 let audioPlayerNode = null;
@@ -13,7 +11,7 @@ let audioRecorderNode = null;
 
 // Message tracking
 let currentMessageId = null;
-let eventSource = null;
+let websocket = null;
 
 // DOM elements
 const messagesDiv = document.getElementById("messages");
@@ -29,15 +27,14 @@ function base64ToArray(base64) {
   return bytes.buffer;
 }
 
-// SSE handlers
-function connectSSE() {
-  // Connect to SSE endpoint
-  eventSource = new EventSource(sse_url + "?is_audio=" + is_audio);
+// WebSocket handlers
+function connectWebSocket() {
+  // Connect to WebSocket endpoint (always audio mode)
+  websocket = new WebSocket(ws_url);
 
   // Handle connection open
-  eventSource.onopen = function () {
-    // Connection opened messages
-    console.log("SSE connection opened.");
+  websocket.onopen = function () {
+    console.log("WebSocket connection opened.");
     document.getElementById("messages").textContent = "Connection opened";
 
     // Enable the Send button
@@ -46,7 +43,7 @@ function connectSSE() {
   };
 
   // Handle incoming messages
-  eventSource.onmessage = function (event) {
+  websocket.onmessage = function (event) {
     // Parse the incoming message
     const message_from_server = JSON.parse(event.data);
     console.log("[AGENT TO CLIENT] ", message_from_server);
@@ -87,41 +84,36 @@ function connectSSE() {
   };
 
   // Handle connection close
-  eventSource.onerror = function (event) {
-    console.log("SSE connection error or closed.");
+  websocket.onclose = function (event) {
+    console.log("WebSocket connection closed.");
     document.getElementById("sendButton").disabled = true;
     document.getElementById("messages").textContent = "Connection closed";
-    eventSource.close();
     setTimeout(function () {
       console.log("Reconnecting...");
-      connectSSE();
+      connectWebSocket();
     }, 5000);
+  };
+
+  // Handle errors
+  websocket.onerror = function (error) {
+    console.error("WebSocket error:", error);
+    document.getElementById("messages").textContent = "Connection error";
   };
 }
 
-// Send message to server
-async function sendMessage(message) {
-  try {
-    const response = await fetch(send_url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(message)
-    });
-
-    if (!response.ok) {
-      console.error('Failed to send message:', response.statusText);
-    }
-  } catch (error) {
-    console.error('Error sending message:', error);
+// Send message to server via WebSocket
+function sendMessage(message) {
+  if (websocket && websocket.readyState === WebSocket.OPEN) {
+    websocket.send(JSON.stringify(message));
+  } else {
+    console.error('WebSocket is not connected');
   }
 }
 
 // Add submit handler for the form
 function addSubmitHandler() {
   const messageForm = document.getElementById("messageForm");
-  messageForm.onsubmit = async function (event) {
+  messageForm.onsubmit = function (event) {
     event.preventDefault();
 
     const messageInput = document.getElementById("message");
@@ -140,7 +132,7 @@ function addSubmitHandler() {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
     // Send the message
-    await sendMessage({
+    sendMessage({
       mime_type: "text/plain",
       data: messageText
     });
@@ -152,19 +144,16 @@ function addSubmitHandler() {
 
 // Audio button handler
 document.getElementById("startAudioButton").onclick = async function () {
-  // Close existing SSE connection
-  if (eventSource) {
-    eventSource.close();
+  // Close existing WebSocket connection
+  if (websocket) {
+    websocket.close();
   }
-
-  // Set audio mode
-  is_audio = true;
 
   // Start audio player
   audioPlayerNode = await startAudioPlayerWorklet();
 
   // Start audio recorder
-  audioRecorderNode = await startAudioRecorderWorklet(async function (audioData) {
+  audioRecorderNode = await startAudioRecorderWorklet(function (audioData) {
     console.log("[CLIENT TO AGENT]: audio/pcm:", audioData.byteLength, "bytes");
     
     // Convert audioData to base64
@@ -176,19 +165,19 @@ document.getElementById("startAudioButton").onclick = async function () {
     const base64 = btoa(binary);
 
     // Send audio data
-    await sendMessage({
+    sendMessage({
       mime_type: "audio/pcm",
       data: base64
     });
   });
 
-  // Reconnect SSE with audio mode
-  connectSSE();
+  // Reconnect WebSocket with audio mode
+  connectWebSocket();
 
   // Disable the button
   this.disabled = true;
   this.textContent = "Audio Mode Active";
 };
 
-// Initialize SSE connection on page load
-connectSSE();
+// Initialize WebSocket connection on page load
+connectWebSocket();

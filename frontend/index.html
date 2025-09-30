@@ -22,6 +22,43 @@
       </div>
     </div>
   </div>
+  <script>
+    (function() {
+      // Lightweight global selection tracker available to all frontend scripts
+      const SEL_MAX_CHARS = 8000;
+      function getWindowSelection() {
+        try {
+          const sel = window.getSelection && window.getSelection();
+          if (!sel) return '';
+          const text = (sel.toString && sel.toString()) || '';
+          const trimmed = text.trim();
+          if (!trimmed) return '';
+          return trimmed.length > SEL_MAX_CHARS ? trimmed.slice(0, SEL_MAX_CHARS) + '\n...[truncated]...' : trimmed;
+        } catch (_) {
+          return '';
+        }
+      }
+
+      let currentSelection = '';
+      function updateSelection() {
+        currentSelection = getWindowSelection();
+        window.__pikachuSelection = currentSelection;
+      }
+
+      document.addEventListener('mouseup', updateSelection, true);
+      document.addEventListener('keyup', (e) => {
+        if (e.key === 'Escape') {
+          currentSelection = '';
+          window.__pikachuSelection = '';
+        } else {
+          updateSelection();
+        }
+      }, true);
+
+      // Initialize once DOM is interactive
+      updateSelection();
+    })();
+  </script>
   <script src="renderer.js"></script>
   <script src="gemini-live.js"></script>
   <script type="module" src="static/js/overlay-audio.js"></script>

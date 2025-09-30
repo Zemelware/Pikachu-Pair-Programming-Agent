@@ -42,6 +42,14 @@ function connectWebSocket() {
 
   websocket.onopen = () => {
     window.pikachuAPI.setListening('connected (audio mode)');
+    // If user has highlighted text, send it as an initial text context message
+    try {
+      const selection = (window && window.__pikachuSelection) ? window.__pikachuSelection : '';
+      if (selection) {
+        const selectionBlock = `Current highlighted code (from user system):\n\n${selection}\n\n— End selection —`;
+        websocket.send(JSON.stringify({ mime_type: 'text/plain', data: selectionBlock }));
+      }
+    } catch (_) {}
   };
 
   websocket.onmessage = (event) => {
@@ -166,6 +174,25 @@ if (pikachuImg) {
   });
 }
 
-console.log('Overlay audio ready (Command-click Pikachu to talk)');
+// Auto-start on load and stop on window close
+const autoStart = async () => {
+  try {
+    if (!isRecording) await startRecording();
+  } catch (e) {
+    console.error('Auto-start failed:', e);
+  }
+};
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  autoStart();
+} else {
+  window.addEventListener('DOMContentLoaded', autoStart);
+}
+
+window.addEventListener('beforeunload', () => {
+  try { if (isRecording) stopRecording(); } catch (_) {}
+});
+
+console.log('Overlay audio ready (auto-start enabled)');
 
 

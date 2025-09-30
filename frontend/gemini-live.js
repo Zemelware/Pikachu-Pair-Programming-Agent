@@ -125,6 +125,10 @@ class PikachuGeminiLive {
   async callGeminiAPI(userInput) {
     // Send message to backend via SSE
     try {
+      // Prepend highlighted selection if available
+      const selection = (window && window.__pikachuSelection) ? window.__pikachuSelection : '';
+      const selectionBlock = selection ? `Current highlighted code (from user system):\n\n${selection}\n\n— End selection —\n` : '';
+      const payloadText = selectionBlock + userInput;
       const response = await fetch(this.send_url, {
         method: 'POST',
         headers: {
@@ -132,7 +136,7 @@ class PikachuGeminiLive {
         },
         body: JSON.stringify({
           mime_type: "text/plain",
-          data: userInput
+          data: payloadText
         })
       });
 

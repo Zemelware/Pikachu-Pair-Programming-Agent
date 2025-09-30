@@ -21,8 +21,6 @@ from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from pikachu_agent.agent import root_agent
-
 # Load environment variables
 load_dotenv()
 

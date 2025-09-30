@@ -15,7 +15,7 @@ from tools import (
 
 # Specific files the agent is allowed to access from external projects
 ALLOWED_EXTERNAL_FILES = [
-    "/Users/miracle/Pikachu-Pair-Programming-Demo/pokemon-app/app/page.tsx",
+    "/Users/aryan/projects/Pikachu-Pair-Programming-Demo/pokemon-app/app/page.tsx",
 ]
 
 def create_full_agent(websocket_callback=None):

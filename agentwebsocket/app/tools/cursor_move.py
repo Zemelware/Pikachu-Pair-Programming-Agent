@@ -46,8 +46,13 @@ def make_cursor_move_tool(websocket_send_callback: Optional[Callable] = None) ->
         
         # Track in tool context if available
         if tool_context is not None:
-            history = tool_context.state.setdefault("cursor_moves", [])
+            history = tool_context.state.get("cursor_moves")
+            if history is None:
+                history = []
+            else:
+                history = list(history)
             history.append(payload)
+            tool_context.state["cursor_moves"] = history
             
         return {"ack": True, "cursor": payload}
 

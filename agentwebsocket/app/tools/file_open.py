@@ -51,9 +51,14 @@ def make_file_open_tool() -> FileOpenCallable:
             
             # Track in tool context if available
             if tool_context is not None:
-                opened_files = tool_context.state.setdefault("opened_files", [])
+                opened_files = tool_context.state.get("opened_files")
+                if opened_files is None:
+                    opened_files = []
+                else:
+                    opened_files = list(opened_files)
                 if path not in opened_files:
                     opened_files.append(path)
+                    tool_context.state["opened_files"] = opened_files
                     
             return {"path": path, "content": content}
             

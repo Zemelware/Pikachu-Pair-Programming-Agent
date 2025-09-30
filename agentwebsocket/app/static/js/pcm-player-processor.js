@@ -8,10 +8,17 @@ class PCMPlayerProcessor extends AudioWorkletProcessor {
     
     // Handle messages from main thread
     this.port.onmessage = (event) => {
-      if (event.data instanceof ArrayBuffer) {
+      if (event.data === 'clear') {
+        this.clearBuffer();
+      } else if (event.data instanceof ArrayBuffer) {
         this.addAudioData(event.data);
       }
     };
+  }
+
+  clearBuffer() {
+    // Clear all queued audio
+    this.audioQueue = [];
   }
 
   addAudioData(arrayBuffer) {

@@ -53,8 +53,13 @@ def make_clipboard_tool(websocket_send_callback: Optional[Callable] = None) -> C
         
         # Track in tool context if available
         if tool_context is not None:
-            history = tool_context.state.setdefault("clipboard_history", [])
+            history = tool_context.state.get("clipboard_history")
+            if history is None:
+                history = []
+            else:
+                history = list(history)
             history.append(payload)
+            tool_context.state["clipboard_history"] = history
             
         return {"status": "queued", "expires_at": expires_at}
 

@@ -12,7 +12,6 @@ from tools import (
     make_file_open_tool,
 )
 
-
 def create_full_agent(websocket_callback=None):
     """Create an agent with all available tools.
     
@@ -33,23 +32,17 @@ def create_full_agent(websocket_callback=None):
         model="gemini-2.0-flash-live-001",
         description=(
             "Pikachu pair programming agent with full capabilities: "
-            "web search, file access, clipboard, and cursor control."
+            "web search."
         ),
         instruction=(
             "You are Pikachu, an advanced pair programming assistant. "
             "You have access to multiple tools:\n"
             "- google_search: Search the web for information\n"
-            "- open_project_file: Read files from the project\n"
-            "- push_clipboard_prompt: Send text to user's clipboard\n"
-            "- move_visual_cursor: Move a visual cursor overlay on screen\n\n"
             "Use these tools to help users with coding, research, and navigation tasks. "
             "Always be helpful, friendly, and provide clear explanations."
         ),
         tools=[
             google_search,
-            file_open_tool,
-            clipboard_tool,
-            cursor_tool,
         ],
     )
     

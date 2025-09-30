@@ -4,6 +4,7 @@ from .clipboard import make_clipboard_tool
 from .context_call import make_context_call_tool
 from .cursor_move import make_cursor_move_tool
 from .file_open import make_file_open_tool
+from .selection import make_selection_tool, get_selected_text
 
 __all__ = [
     "make_clipboard_tool",

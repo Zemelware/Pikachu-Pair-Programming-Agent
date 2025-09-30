@@ -13,6 +13,7 @@ let audioRecorderContext = null;
 let micStream = null;
 let isRecording = false;
 let isMuted = false;
+let isAssistantSpeaking = false;
 
 const sessionId = Math.random().toString().substring(10);
 const wsUrl = `ws://localhost:8000/ws/${sessionId}?is_audio=true`;
@@ -53,11 +54,13 @@ function connectWebSocket() {
 
   websocket.onmessage = (event) => {
     const msg = JSON.parse(event.data);
-    if (msg.turn_complete) return;
+    if (msg.turn_complete) { isAssistantSpeaking = false; return; }
+    if (msg.interrupted) { isAssistantSpeaking = false; return; }
 
     if (msg.mime_type === 'audio/pcm' && audioPlayerNode) {
       // Don't play audio if muted
       if (!isMuted) {
+        isAssistantSpeaking = true;
         audioPlayerNode.port.postMessage(base64ToArray(msg.data));
       }
     } else if (msg.mime_type === 'text/plain') {
@@ -81,6 +84,20 @@ async function startAudio() {
     // Don't send audio if muted
     if (isMuted) return;
     if (!websocket || websocket.readyState !== WebSocket.OPEN) return;
+    // Simple VAD-based barge-in: if user voice detected while assistant speaking, clear buffer
+    try {
+      const int16 = new Int16Array(pcmData);
+      let sumSquares = 0;
+      for (let i = 0; i < int16.length; i++) {
+        const v = int16[i] / 32768.0;
+        sumSquares += v * v;
+      }
+      const rms = Math.sqrt(sumSquares / Math.max(1, int16.length));
+      if (isAssistantSpeaking && rms > 0.04) {
+        if (audioPlayerNode) audioPlayerNode.port.postMessage('clear');
+        isAssistantSpeaking = false;
+      }
+    } catch (_) {}
     websocket.send(JSON.stringify({ mime_type: 'audio/pcm', data: arrayBufferToBase64(pcmData) }));
   });
   audioRecorderNode = recorderNode;

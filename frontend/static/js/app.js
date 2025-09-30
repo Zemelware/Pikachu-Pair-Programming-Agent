@@ -11,6 +11,7 @@ let audioPlayerContext = null;
 let audioRecorderNode = null;
 let audioRecorderContext = null;
 let micStream = null;
+let isAssistantSpeaking = false;
 
 // Message tracking
 let currentMessageId = null;
@@ -58,11 +59,17 @@ function connectWebSocket() {
       message_from_server.turn_complete == true
     ) {
       currentMessageId = null;
+      isAssistantSpeaking = false;
+      return;
+    }
+    if (message_from_server.interrupted === true) {
+      isAssistantSpeaking = false;
       return;
     }
 
     // If it's audio, play it
     if (message_from_server.mime_type == "audio/pcm" && audioPlayerNode) {
+      isAssistantSpeaking = true;
       audioPlayerNode.port.postMessage(base64ToArray(message_from_server.data));
     }
 
@@ -166,6 +173,21 @@ document.getElementById("startAudioButton").onclick = async function () {
       binary += String.fromCharCode(bytes[i]);
     }
     const base64 = btoa(binary);
+
+    // Simple VAD barge-in: if assistant is speaking and mic RMS is high, clear playback buffer
+    try {
+      const int16 = new Int16Array(audioData);
+      let sumSquares = 0;
+      for (let i = 0; i < int16.length; i++) {
+        const v = int16[i] / 32768.0;
+        sumSquares += v * v;
+      }
+      const rms = Math.sqrt(sumSquares / Math.max(1, int16.length));
+      if (isAssistantSpeaking && rms > 0.04) {
+        if (audioPlayerNode) audioPlayerNode.port.postMessage('clear');
+        isAssistantSpeaking = false;
+      }
+    } catch (_) {}
 
     // Send audio data
     sendMessage({

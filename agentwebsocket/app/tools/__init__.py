@@ -10,4 +10,6 @@ __all__ = [
     "make_context_call_tool",
     "make_cursor_move_tool",
     "make_file_open_tool",
+    "make_selection_tool",
+    "get_selected_text",
 ]

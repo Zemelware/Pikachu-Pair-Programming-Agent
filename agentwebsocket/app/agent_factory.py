@@ -12,6 +12,16 @@ from tools import (
     make_cursor_move_tool,
     make_file_open_tool,
 )
+try:
+    # When imported as a package: app.agent_factory
+    from .tools import (
+        get_selected_text,
+    )
+except Exception:
+    # When imported as a script: agent_factory in PYTHONPATH
+    from tools import (
+        get_selected_text,
+    )
 
 # Specific files the agent is allowed to access from external projects
 ALLOWED_EXTERNAL_FILES = [
@@ -33,7 +43,11 @@ def create_full_agent(websocket_callback=None):
     clipboard_tool = make_clipboard_tool(websocket_callback)
     cursor_tool = make_cursor_move_tool(websocket_callback)
     
+
     # Create the agent with all tools
+    available_tools = [google_search, get_selected_text]
+    print(f"Available tools: {[getattr(t, 'name', str(t)) for t in available_tools]}")
+    
     agent = Agent(
         name="pikachu_full_agent",
         model="gemini-2.0-flash-live-001",
@@ -56,6 +70,7 @@ def create_full_agent(websocket_callback=None):
             "- google_search: Search the web for current information, documentation, and best practices\n"
             "- push_clipboard_prompt: Send code snippets or text to the user's clipboard for easy pasting\n"
             "- move_visual_cursor: Point to specific screen locations to guide the user's attention\n\n"
+            "- get_selected_text: Capture what the user is currently highlighting on screen\n\n"
             
             "As a critical pair programmer, you should:\n"
             "• Always start by reading the project context to understand the current goals and requirements\n"
@@ -77,6 +92,7 @@ def create_full_agent(websocket_callback=None):
             google_search,
             clipboard_tool,
             cursor_tool,
+            get_selected_text,
         ],
     )
 

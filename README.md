@@ -1,4 +1,4 @@
-# Pikachu-Pair-Programming-Agent (Google Hackathon Finalist)
+# Pikachu Pair Programming Agent (Google Hackathon Finalist)
 
 Real-time AI Pair Programming Assistant with Multimodal Intelligence and Visual Feedback.
 

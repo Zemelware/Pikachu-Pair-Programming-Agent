@@ -1,6 +1,6 @@
-# Pikachu-Pair-Programming-Agent
+# Pikachu-Pair-Programming-Agent (Google Hackathon Finalist)
 
-Real-time AI Pair Programming Assistant with Multimodal Intelligence and Visual Feedback
+Real-time AI Pair Programming Assistant with Multimodal Intelligence and Visual Feedback.
 
 An advanced voice and text-enabled AI coding companion powered by Gemini 2.0 Flash Live, featuring bidirectional WebSocket streaming for ultra-low latency interactions. This intelligent agent provides comprehensive development assistance through an extensible tool ecosystem including:
 
